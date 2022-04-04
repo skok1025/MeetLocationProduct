@@ -1,0 +1,16 @@
+server:
+  port: 8080
+spring:
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://127.0.0.1:3306/shkim30
+    username: root
+    password: root
+  jpa:
+    #hibernate:
+    #  ddl-auto: create
+    properties:
+      hibernate:
+        format_sql: true
+
+

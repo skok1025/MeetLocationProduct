@@ -3,7 +3,7 @@ server:
 spring:
   datasource:
     driver-class-name: org.mariadb.jdbc.Driver
-    url: jdbc:mariadb://127.0.0.1:3307/shkim30
+    url: jdbc:mariadb://127.0.0.1:3306/shkim30
     username: root
     password: root
   jpa:

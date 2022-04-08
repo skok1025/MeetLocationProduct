@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @RequestMapping("/admin")
 public class AdminController {
 
-    @GetMapping("/hotplace/add")
-    public String hotPlaceAdd() {
+    @GetMapping("/hotplace")
+    public String hotPlace() {
         return "admin/hotplacesave";
     }
 }

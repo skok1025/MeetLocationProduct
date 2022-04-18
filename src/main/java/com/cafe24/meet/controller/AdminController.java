@@ -10,6 +10,6 @@ public class AdminController {
 
     @GetMapping("/hotplace")
     public String hotPlace() {
-        return "admin/hotplacesave";
+        return "admin/hotplacesave2";
     }
 }

@@ -1,36 +1,55 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-<head>
-    <meta charset="UTF-8">
-    <title>핫플레이스 등록</title>
-    <style>
-        .map_wrap {width: 100%;position: relative; margin-top:20px;}
-        .modes {position: absolute;top: 10px;left: 10px;z-index: 1;}
-        .getdata{position: absolute;top: 370px;left: 10px;z-index: 1;}
-        #drawingMap, #map {width: 100%;height: 350px;}
-        #map {margin-top: 10px;}
-    </style>
-    <!-- 합쳐지고 최소화된 최신 CSS -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">
-</head>
-<body>
-    <h1 th:text="#{hotplace.add.title}">핫플레이스 등록</h1>
-    <div class="map_wrap">
-        <div id="drawingMap"></div>
-        <div id="map"></div>
-        <p class="modes">
-            <button onclick="selectOverlay('CIRCLE')">원</button>
-        </p>
-        <p class="getdata">
-            <button onclick="getDataFromDrawingMap()">가져오기</button>
-        </p>
-    </div>
-    <script>
+    <head>
+        <!-- Header -->
+        <div th:replace="fragment/header :: base"></div>
+    </head>
+    <body>
+        <div class="d-flex" id="wrapper">
+            <!-- Page content wrapper-->
+            <div id="page-content-wrapper" class="content">
+                <!-- Top navigation-->
+                <div th:replace="fragment/top_navbar :: base"></div>
+                <div th:replace="~{fragment/page_explain :: copyParam ('핫플레이스 등록', '해당 페이지는 약속위치가 될 핫플레이스를 등록하는 페이지입니다. 지도에 드래그를 하여 원영역으로 핫플레이스를 등록해주세요.')}"></div>
+                <div class="container-fluid">
+                    <div class="map_wrap">
+                        <div id="drawingMap"></div>
+                        <p class="modes">
+                            <button class="btn btn-primary" onclick="selectOverlay('CIRCLE')">영역 표시하기</button>
+                        </p>
+
+                        <div id="menu_wrap" class="bg_white">
+                            <div class="option">
+                                <div>
+                                    <form onsubmit="searchPlaces(); return false;">
+                                        키워드 : <input type="text" id="keyword" size="15" placeholder="지역명을 입력하세요.">
+                                        <button type="submit">이동하기</button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <hr>
+                    <div class="explain">
+                        <h5>STEP 1) 지도에 핫플레이스를 등록해주세요.</h5>
+                        <p>지명을 검색한 후에, 원하는 위치에 지도를 드래그하여 핫플레이스 영역을 등록해주세요.</p>
+
+                        <h5>STEP 2) 핫플레이스의 이름을 등록해주세요.</h5>
+                        <div class="form-group input-group-sm"><label for="hotplace">핫플레이스 명: </label><input id="hotplace" class="form-control d-inline w-25" type="text"/> <button class="btn btn-primary btn-lg" type="submit">등록</button></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- body asset -->
+        <div th:replace="fragment/body_asset :: base"></div>
+        <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=f3831b2266d6261515391c00c51ac628&libraries=drawing,services"></script>
+        <script>
     // Drawing Manager로 도형을 그릴 지도 div
     var drawingMapContainer = document.getElementById('drawingMap'),
         drawingMap = {
             center: new kakao.maps.LatLng(33.450701, 126.570667), // 지도의 중심좌표
-            level: 3 // 지도의 확대 레벨
+            level: 2 // 지도의 확대 레벨
         };
 
     // 지도를 표시할 div와  지도 옵션으로  지도를 생성합니다
@@ -93,23 +112,16 @@
 
     // 버튼 클릭 시 호출되는 핸들러 입니다
     function selectOverlay(type) {
+        if(manager.getData()[kakao.maps.drawing.OverlayType.CIRCLE].length) {
+            alert("현재 그리고 있는 영역을 제거해주세요.");
+            return;
+        }
         // 그리기 중이면 그리기를 취소합니다
         manager.cancel();
 
         // 클릭한 그리기 요소 타입을 선택합니다
         manager.select(kakao.maps.drawing.OverlayType[type]);
     }
-
-    // Drawing Manager에서 데이터를 가져와 도형을 표시할 아래쪽 지도 div
-    var mapContainer = document.getElementById('map'),
-        mapOptions = {
-            center: new kakao.maps.LatLng(33.450701, 126.570667), // 지도의 중심좌표
-            level: 3 // 지도의 확대 레벨
-        };
-
-    // 지도 div와 지도 옵션으로 지도를 생성합니다
-    var map = new kakao.maps.Map(mapContainer, mapOptions),
-        overlays = []; // 지도에 그려진 도형을 담을 배열
 
     // 가져오기 버튼을 클릭하면 호출되는 핸들러 함수입니다
     // Drawing Manager로 그려진 객체 데이터를 가져와 아래 지도에 표시합니다
@@ -256,6 +268,68 @@
 
         return path;
     }
+
+// 키워드 검색을 요청하는 함수입니다
+function searchPlaces() {
+
+    var keyword = document.getElementById('keyword').value;
+
+    if (!keyword.replace(/^\s+|\s+$/g, '')) {
+        alert('키워드를 입력해주세요!');
+        return false;
+    }
+    // 장소 검색 객체를 생성합니다
+    var ps = new kakao.maps.services.Places();
+
+    // 장소검색 객체를 통해 키워드로 장소검색을 요청합니다
+    ps.keywordSearch( keyword, placesSearchCB);
+}
+
+// 장소검색이 완료됐을 때 호출되는 콜백함수 입니다
+function placesSearchCB(data, status, pagination) {
+    if (status === kakao.maps.services.Status.OK) {
+
+        // 정상적으로 검색이 완료됐으면
+        // 검색 목록과 마커를 표출합니다
+        displayPlaces(data);
+
+    } else if (status === kakao.maps.services.Status.ZERO_RESULT) {
+
+        alert('검색 결과가 존재하지 않습니다.');
+        return;
+
+    } else if (status === kakao.maps.services.Status.ERROR) {
+
+        alert('검색 결과 중 오류가 발생했습니다.');
+        return;
+
+    }
+}
+
+// 검색 결과 목록과 마커를 표출하는 함수입니다
+function displayPlaces(places) {
+
+    var menuEl = document.getElementById('menu_wrap'),
+    bounds = new kakao.maps.LatLngBounds(),
+    listStr = '';
+
+    for ( var i=0; i<places.length; i++ ) {
+
+        // 마커를 생성하고 지도에 표시합니다
+        var placePosition = new kakao.maps.LatLng(places[i].y, places[i].x);
+
+        // 검색된 장소 위치를 기준으로 지도 범위를 재설정하기위해
+        // LatLngBounds 객체에 좌표를 추가합니다
+        bounds.extend(placePosition);
+    }
+
+    menuEl.scrollTop = 0;
+
+    // 검색된 장소 위치를 기준으로 지도 범위를 재설정합니다
+    drawingMap.setBounds(bounds);
+}
     </script>
-</body>
+        <!-- footer -->
+        <div th:replace="fragment/footer :: base"></div>
+    </body>
 </html>

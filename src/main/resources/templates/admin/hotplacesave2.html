@@ -16,14 +16,28 @@
                         <div id="drawingMap"></div>
                         <p class="modes">
                             <button class="btn btn-primary" onclick="selectOverlay('CIRCLE')">영역 표시하기</button>
+                            <label class="test_obj">
+                                <input type="radio" id="red-color" name="color" value="apple" onclick="setColor('#ff0000')">
+                                <span>빨간원</span>
+                            </label>
+
+                            <label class="test_obj">
+                                <input type="radio" id="blue-color" name="color" value="banana" onclick="setColor('#0000ff')">
+                                <span>파란원</span>
+                            </label>
+
+                            <label class="test_obj">
+                                <input type="radio" id="yellow-color" name="color" value="lemon" onclick="setColor('#f7e600')">
+                                <span>노란원</span>
+                            </label>
                         </p>
 
                         <div id="menu_wrap" class="bg_white">
                             <div class="option">
                                 <div>
                                     <form onsubmit="searchPlaces(); return false;">
-                                        키워드 : <input type="text" id="keyword" size="15" placeholder="지역명을 입력하세요.">
-                                        <button type="submit">이동하기</button>
+                                        <input type="text" id="keyword" size="15" class="form-control" placeholder="지역명을 입력하세요.">
+                                        <button class="btn btn-sm btn-warning" type="submit">이동하기</button>
                                     </form>
                                 </div>
                             </div>
@@ -35,10 +49,10 @@
                         <p>지명을 검색한 후에, 원하는 위치에 지도를 드래그하여 핫플레이스 영역을 등록해주세요.</p>
 
                         <h5>STEP 2) 핫플레이스의 이름을 등록해주세요.</h5>
-                        <form action="/hotplace" th:object="${hotplace}" method="post">
+                        <form id="hotplaceSaveForm" action="/admin/hotplace" th:object="${hotplace}" method="post">
                             <div class="form-group input-group-sm">
                                 <label for="name">핫플레이스 명: </label>
-                                <input id="name" name="name" class="form-control d-inline w-25" type="text"/>
+                                <input th:errorclass="field-error" id="name" name="name" class="form-control d-inline w-25" type="text"/>
                                 <input th:field="*{centerX}" type="hidden">
                                 <input th:field="*{centerY}" type="hidden">
                                 <input th:field="*{ePointX}" type="hidden">
@@ -47,7 +61,10 @@
                                 <input th:field="*{sPointY}" type="hidden">
                                 <input th:field="*{radius}"  type="hidden">
                                 <input th:field="*{color}"   type="hidden">
-                                <button class="btn btn-primary btn-lg" type="button" onclick="getDataFromDrawingMap()">등록</button>
+                                <button class="btn btn-primary btn-lg" type="button" onclick="saveDataFromDrawingMap()">등록</button>
+                                <span class="field-error" th:errors="*{name}">
+                                    핫플레이스명 오류
+                                </span>
                             </div>
                         </form>
                     </div>
@@ -59,6 +76,15 @@
         <div th:replace="fragment/body_asset :: base"></div>
         <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=f3831b2266d6261515391c00c51ac628&libraries=drawing,services"></script>
         <script>
+    var color = "#39f";
+
+    function setColor(setColor) {
+        color = setColor;
+        options['circleOptions']['strokeColor'] = setColor;
+        options['circleOptions']['fillColor'] = setColor;
+        manager = new kakao.maps.drawing.DrawingManager(options);
+    }
+
     // Drawing Manager로 도형을 그릴 지도 div
     var drawingMapContainer = document.getElementById('drawingMap'),
         drawingMap = {
@@ -85,39 +111,13 @@
             draggable: true, // 마커를 그리고 나서 드래그 가능하게 합니다
             removable: true // 마커를 삭제 할 수 있도록 x 버튼이 표시됩니다
         },
-        polylineOptions: { // 선 옵션입니다
-            draggable: true, // 그린 후 드래그가 가능하도록 설정합니다
-            removable: true, // 그린 후 삭제 할 수 있도록 x 버튼이 표시됩니다
-            editable: true, // 그린 후 수정할 수 있도록 설정합니다
-            strokeColor: '#39f', // 선 색
-            hintStrokeStyle: 'dash', // 그리중 마우스를 따라다니는 보조선의 선 스타일
-            hintStrokeOpacity: 0.5  // 그리중 마우스를 따라다니는 보조선의 투명도
-        },
-        rectangleOptions: {
-            draggable: true,
-            removable: true,
-            editable: true,
-            strokeColor: '#39f', // 외곽선 색
-            fillColor: '#39f', // 채우기 색
-            fillOpacity: 0.5 // 채우기색 투명도
-        },
         circleOptions: {
             draggable: true,
             removable: true,
             editable: true,
-            strokeColor: '#39f',
-            fillColor: '#39f',
+            strokeColor: color,
+            fillColor: color,
             fillOpacity: 0.5
-        },
-        polygonOptions: {
-            draggable: true,
-            removable: true,
-            editable: true,
-            strokeColor: '#39f',
-            fillColor: '#39f',
-            fillOpacity: 0.5,
-            hintStrokeStyle: 'dash',
-            hintStrokeOpacity: 0.5
         }
     };
 
@@ -139,11 +139,22 @@
 
     // 가져오기 버튼을 클릭하면 호출되는 핸들러 함수입니다
     // Drawing Manager로 그려진 객체 데이터를 가져와 아래 지도에 표시합니다
-    function getDataFromDrawingMap() {
+    function saveDataFromDrawingMap() {
         // Drawing Manager에서 그려진 데이터 정보를 가져옵니다
         var data = manager.getData();
 
-console.log(data[kakao.maps.drawing.OverlayType.CIRCLE][0]);
+        console.log(data[kakao.maps.drawing.OverlayType.CIRCLE][0]);
+
+        $("#centerX").val(data[kakao.maps.drawing.OverlayType.CIRCLE][0]['center']['x']);
+        $("#centerY").val(data[kakao.maps.drawing.OverlayType.CIRCLE][0]['center']['y']);
+        $("#ePointX").val(data[kakao.maps.drawing.OverlayType.CIRCLE][0]['ePoint']['x']);
+        $("#ePointY").val(data[kakao.maps.drawing.OverlayType.CIRCLE][0]['ePoint']['y']);
+        $("#sPointX").val(data[kakao.maps.drawing.OverlayType.CIRCLE][0]['sPoint']['x']);
+        $("#sPointY").val(data[kakao.maps.drawing.OverlayType.CIRCLE][0]['sPoint']['y']);
+        $("#radius").val(data[kakao.maps.drawing.OverlayType.CIRCLE][0]['radius']);
+        $("#color").val(data[kakao.maps.drawing.OverlayType.CIRCLE][0]['options']['fillColor']);
+
+        $("#hotplaceSaveForm").submit();
     }
 
     // 아래 지도에 그려진 도형이 있다면 모두 지웁니다

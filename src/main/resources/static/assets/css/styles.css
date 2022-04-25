@@ -11347,8 +11347,36 @@ li > a {
   width:100%;
 }
 
+.field-error {
+    border-color: #dc3545;
+    color: #dc3545;
+}
 
+    .test_obj input[type="radio"] {
+        display: none;
+    }
 
+    .test_obj input[type="radio"] + span {
+        display: inline-block;
+        padding: 15px 10px;
+        border: 1px solid #dfdfdf;
+        background-color: #ffffff;
+        text-align: center;
+        cursor: pointer;
+    }
+
+    .test_obj input[id="red-color"]:checked + span {
+        background-color: #ff0000;
+        color: #ffffff;
+    }
+    .test_obj input[id="blue-color"]:checked + span {
+        background-color: #0000ff;
+        color: #ffffff;
+    }
+    .test_obj input[id="yellow-color"]:checked + span {
+        background-color: #f7e600;
+        color: #ffffff;
+    }
 /**
 카카오 map css
 **/

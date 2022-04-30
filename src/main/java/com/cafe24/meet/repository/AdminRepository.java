@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
 import javax.persistence.EntityManager;
+import java.util.List;
 
 @Repository
 @RequiredArgsConstructor
@@ -19,5 +20,9 @@ public class AdminRepository {
 
     public HotPlaceVo findHotPlace(Long id) {
         return em.find(HotPlaceVo.class, id);
+    }
+
+    public List<HotPlaceVo> selectHotPlaceList() {
+        return em.createQuery("select h from HotPlaceVo h", HotPlaceVo.class).getResultList();
     }
 }

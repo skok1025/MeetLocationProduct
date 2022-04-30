@@ -1,6 +1,6 @@
 package com.cafe24.meet.controller;
 
-import com.cafe24.meet.service.AdminService;
+import com.cafe24.meet.service.HotPlaceService;
 import com.cafe24.meet.vo.HotPlaceVo;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,19 +13,22 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.validation.Valid;
+import java.util.List;
 
 @Slf4j
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/admin")
 public class AdminController {
-    private final AdminService adminService;
+    private final HotPlaceService adminService;
 
     @GetMapping("/hotplace")
     public String hotPlace(Model model) {
+        List<HotPlaceVo> hotplaceList = adminService.getHotPlaceList();
+        System.out.println(hotplaceList);
         model.addAttribute("hotplace", new HotPlaceVo());
-        return "admin/hotplacesave2";
+        model.addAttribute("hotplaceList", hotplaceList);
+        return "admin/hotplacesave";
     }
 
     @PostMapping("/hotplace")
@@ -33,7 +36,7 @@ public class AdminController {
         log.info("bindingResult={}", bindingResult);
 
         if (bindingResult.hasErrors()) {
-            return "admin/hotplacesave2";
+            return "admin/hotplacesave";
         }
         adminService.saveHotplace(hotplace);
         return "redirect:/";

@@ -11391,3 +11391,12 @@ li > a {
 #menu_wrap .option{text-align: center;}
 #menu_wrap .option p {margin:10px 0;}
 #menu_wrap .option button {margin-left:5px;}
+
+.white-font {
+    color:#000 !important;
+}
+
+.explain-marker {
+    width : 30px;
+    height : 30px;
+}

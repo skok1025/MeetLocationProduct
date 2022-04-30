@@ -40,4 +40,11 @@ public class AdminRepositoryTest {
 
         Assertions.assertThat(findHotPlace.getNo()).isEqualTo(hotplace.getNo());
     }
+
+    @Test
+    public void testSelectHotplaceList() {
+        org.junit.jupiter.api.Assertions.assertNotNull(
+                adminRepository.selectHotPlaceList()
+        );
+    }
 }

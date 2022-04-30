@@ -1,82 +1,54 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <!-- Header -->
-        <div th:replace="fragment/header :: base"></div>
-    </head>
-    <body>
-        <div class="d-flex" id="wrapper">
-            <!-- Page content wrapper-->
-            <div id="page-content-wrapper" class="content">
-                <!-- Top navigation-->
-                <div th:replace="fragment/top_navbar :: base"></div>
-                <div th:replace="~{fragment/page_explain :: copyParam ('핫플레이스 등록', '해당 페이지는 약속위치가 될 핫플레이스를 등록하는 페이지입니다. 지도에 드래그를 하여 원영역으로 핫플레이스를 등록해주세요.')}"></div>
-                <div class="container-fluid">
-                    <div class="map_wrap">
-                        <div id="drawingMap"></div>
-                        <p class="modes">
-                            <button class="btn btn-primary" onclick="selectOverlay('CIRCLE')">영역 표시하기</button>
-                            <label class="test_obj">
-                                <input type="radio" id="red-color" name="color" value="apple" onclick="setColor('#ff0000')">
-                                <span>빨간원</span>
-                            </label>
+<head>
+    <!-- Header -->
+    <div th:replace="fragment/header :: base"></div>
+</head>
+<body>
+<div class="d-flex" id="wrapper">
+    <!-- Page content wrapper-->
+    <div id="page-content-wrapper" class="content">
+        <!-- Top navigation-->
+        <div th:replace="fragment/top_navbar :: base"></div>
+        <div th:replace="~{fragment/page_explain :: copyParam ('결과 확인', '해당 페이지는 만남 최적 장소를 추천해주는 페이지입니다.')}"></div>
+        <div class="container-fluid">
+            <div class="map_wrap">
+                <div id="drawingMap"></div>
 
-                            <label class="test_obj">
-                                <input type="radio" id="blue-color" name="color" value="banana" onclick="setColor('#0000ff')">
-                                <span>파란원</span>
-                            </label>
-
-                            <label class="test_obj">
-                                <input type="radio" id="yellow-color" name="color" value="lemon" onclick="setColor('#f7e600')">
-                                <span>노란원</span>
-                            </label>
-                        </p>
-
-                        <div id="menu_wrap" class="bg_white">
-                            <div class="option">
-                                <div>
-                                    <form onsubmit="searchPlaces(); return false;">
-                                        <input type="text" id="keyword" size="15" class="form-control" placeholder="지역명을 입력하세요.">
-                                        <button class="btn btn-sm btn-warning" type="submit">이동하기</button>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <hr>
-                    <div class="explain">
-                        <h5>STEP 1) 지도에 핫플레이스를 등록해주세요.</h5>
-                        <p>지명을 검색한 후에, 원하는 위치에 지도를 드래그하여 핫플레이스 영역을 등록해주세요.</p>
-
-                        <h5>STEP 2) 핫플레이스의 이름을 등록해주세요.</h5>
-                        <form id="hotplaceSaveForm" action="/admin/hotplace" th:object="${hotplace}" method="post">
-                            <div class="form-group input-group-sm">
-                                <label for="name">핫플레이스 명: </label>
-                                <input th:errorclass="field-error" id="name" name="name" class="form-control d-inline w-25" type="text"/>
-                                <input th:field="*{centerX}" type="hidden">
-                                <input th:field="*{centerY}" type="hidden">
-                                <input th:field="*{ePointX}" type="hidden">
-                                <input th:field="*{ePointY}" type="hidden">
-                                <input th:field="*{sPointX}" type="hidden">
-                                <input th:field="*{sPointY}" type="hidden">
-                                <input th:field="*{radius}"  type="hidden">
-                                <input th:field="*{color}"   type="hidden">
-                                <button class="btn btn-primary btn-lg" type="button" onclick="saveDataFromDrawingMap()">등록</button>
-                                <span class="field-error" th:errors="*{name}">
-                                    핫플레이스명 오류
-                                </span>
-                            </div>
-                        </form>
+                <div id="menu_wrap" class="bg_white">
+                    <h5 class="title"><img src="https://img.icons8.com/fluency/344/marker-storm.png" style="zoom:0.08;">중간위치의 행정주소</h5>
+                    <div id="centerAddr">
                     </div>
                 </div>
             </div>
-        </div>
+            <hr>
+            <div class="explain">
+                <h5>결과에 표시된 마커 의미</h5>
+                <p><img class="explain-marker" src="https://i1.daumcdn.net/dmaps/apis/n_local_blit_04.png"> : 선택한 친구들의 위치</p>
+                <p><img class="explain-marker"  src="https://img.icons8.com/fluency/344/marker-storm.png"> : 중간지점의 좌표</p>
+                <p><img class="explain-marker"  src="https://img.icons8.com/bubbles/344/meeting.png"> : 만남의 최적의 핫플레이스</p>
 
-        <!-- body asset -->
-        <div th:replace="fragment/body_asset :: base"></div>
-        <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=f3831b2266d6261515391c00c51ac628&libraries=drawing,services"></script>
-        <script>
+                <h5>"<span th:text="${baseHotPlace.name}">추천한 핫플</span>" 의 추천 놀거리 리스트</h5>
+                <p>서비스 준비중</p>
+
+
+                <form id="resultForm" action="/meet/result" method="get">
+                    <div class="form-group input-group-sm">
+                        <button class="btn btn-primary btn-lg" type="button" onclick="history.back();">다시하기</button>
+                        <input id="marker_result" hidden>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- body asset -->
+<div th:replace="fragment/body_asset :: base"></div>
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=f3831b2266d6261515391c00c51ac628&libraries=drawing,services"></script>
+<script th:inline="javascript">
     var color = "#39f";
+    var overlays = [];
 
     function setColor(setColor) {
         color = setColor;
@@ -88,8 +60,8 @@
     // Drawing Manager로 도형을 그릴 지도 div
     var drawingMapContainer = document.getElementById('drawingMap'),
         drawingMap = {
-            center: new kakao.maps.LatLng(33.450701, 126.570667), // 지도의 중심좌표
-            level: 2 // 지도의 확대 레벨
+            center: new kakao.maps.LatLng(Number([[${centerMarker.y}]]), Number([[${centerMarker.x}]])), // 지도의 중심좌표
+            level: 7 // 지도의 확대 레벨
         };
 
     // 지도를 표시할 div와  지도 옵션으로  지도를 생성합니다
@@ -143,18 +115,20 @@
         // Drawing Manager에서 그려진 데이터 정보를 가져옵니다
         var data = manager.getData();
 
-        console.log(data[kakao.maps.drawing.OverlayType.CIRCLE][0]);
+        for (let idx in data[kakao.maps.drawing.OverlayType.MARKER]) {
+            var inputX = document.createElement('input');
+            inputX.name = "markerList[" + idx + "].x";
+            inputX.value = data[kakao.maps.drawing.OverlayType.MARKER][idx]['x'];
+            inputX.hidden = true;
+            $('#resultForm').append(inputX);
 
-        $("#centerX").val(data[kakao.maps.drawing.OverlayType.CIRCLE][0]['center']['x']);
-        $("#centerY").val(data[kakao.maps.drawing.OverlayType.CIRCLE][0]['center']['y']);
-        $("#ePointX").val(data[kakao.maps.drawing.OverlayType.CIRCLE][0]['ePoint']['x']);
-        $("#ePointY").val(data[kakao.maps.drawing.OverlayType.CIRCLE][0]['ePoint']['y']);
-        $("#sPointX").val(data[kakao.maps.drawing.OverlayType.CIRCLE][0]['sPoint']['x']);
-        $("#sPointY").val(data[kakao.maps.drawing.OverlayType.CIRCLE][0]['sPoint']['y']);
-        $("#radius").val(data[kakao.maps.drawing.OverlayType.CIRCLE][0]['radius']);
-        $("#color").val(data[kakao.maps.drawing.OverlayType.CIRCLE][0]['options']['fillColor']);
-
-        $("#hotplaceSaveForm").submit();
+            var inputY = document.createElement('input');
+            inputY.name = "markerList[" + idx + "].y";
+            inputY.value = data[kakao.maps.drawing.OverlayType.MARKER][idx]['y'];
+            inputY.hidden = true;
+            $('#resultForm').append(inputY);
+        }
+        $('#resultForm').submit();
     }
 
     // 아래 지도에 그려진 도형이 있다면 모두 지웁니다
@@ -169,18 +143,27 @@
     }
 
     // Drawing Manager에서 가져온 데이터 중 마커를 아래 지도에 표시하는 함수입니다
-    function drawMarker(markers) {
-        var len = markers.length, i = 0;
+    function drawSelectedMarker(selectedMarker, bHaveImage) {
+        if (bHaveImage == true) {
+            var imageSrc = selectedMarker.imageSrc, // 마커이미지의 주소입니다
+            imageSize = new kakao.maps.Size(selectedMarker.imageSize, selectedMarker.imageSize), // 마커이미지의 크기입니다
+            imageOption = {offset: new kakao.maps.Point(27, 69)}; // 마커이미지의 옵션입니다. 마커의 좌표와 일치시킬 이미지 안에서의 좌표를 설정합니다.
 
-        for (; i < len; i++) {
+            var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize, imageOption);
             var marker = new kakao.maps.Marker({
-                map: map,
-                position: new kakao.maps.LatLng(markers[i].y, markers[i].x),
-                zIndex: markers[i].zIndex
+                map: drawingMap,
+                position: new kakao.maps.LatLng(selectedMarker.y, selectedMarker.x),
+                zIndex: selectedMarker.zIndex,
+                image: markerImage // 마커이미지 설정
             });
-
-            overlays.push(marker);
+        } else {
+            var marker = new kakao.maps.Marker({
+                map: drawingMap,
+                position: new kakao.maps.LatLng(selectedMarker.y, selectedMarker.x),
+                zIndex: 1
+            });
         }
+        overlays.push(marker);
     }
 
     // Drawing Manager에서 가져온 데이터 중 선을 아래 지도에 표시하는 함수입니다
@@ -228,26 +211,78 @@
     }
 
     // Drawing Manager에서 가져온 데이터 중 원을 아래 지도에 표시하는 함수입니다
-    function drawCircle(circles) {
-        var len = circles.length, i = 0;
+    function drawHotPlace(hotplace) {
+        var content = '<div class ="label"><span class="left"></span><h3 class="white-font">'+hotplace.name+'</h3><span class="right"></span></div>';
 
-        for (; i < len; i++) {
-            var style = circles[i].options;
-            var circle = new kakao.maps.Circle({
-                map: map,
-                center: new kakao.maps.LatLng(circles[i].center.y, circles[i].center.x),
-                radius: circles[i].radius,
-                strokeColor: style.strokeColor,
-                strokeOpacity: style.strokeOpacity,
-                strokeStyle: style.strokeStyle,
-                strokeWeight: style.strokeWeight,
-                fillColor: style.fillColor,
-                fillOpacity: style.fillOpacity
-            });
+        var customOverlay = new kakao.maps.CustomOverlay({
+            position: new kakao.maps.LatLng(hotplace.centerY, hotplace.centerX),
+            content: content,
+            zIndex: 1
+        });
 
-            overlays.push(circle);
+        // 커스텀 오버레이를 지도에 표시합니다
+        customOverlay.setMap(drawingMap);
+        var circle = new kakao.maps.Circle({
+            map: drawingMap,
+            center: new kakao.maps.LatLng(hotplace.centerY, hotplace.centerX),
+            radius: hotplace.radius,
+            strokeColor: hotplace.color,
+            fillColor: hotplace.color,
+            fillOpacity: 0.5
+        });
+        //overlays.push(circle);
+    }
+
+    /*[# th:each="hotplace : ${hotplaceList}"]*/
+        drawHotPlace({
+            "name" : /*[[${hotplace.name}]]*/,
+            "centerX" : /*[[${hotplace.centerX}]]*/,
+            "centerY" : /*[[${hotplace.centerY}]]*/,
+            "radius" : /*[[${hotplace.radius}]]*/,
+            "color" : /*[[${hotplace.color}]]*/
+        });
+    /*[/]*/
+
+    /*[# th:each="selectedMarker : ${selectedMarkerList}"]*/
+        drawSelectedMarker({
+            "x" : /*[[${selectedMarker.x}]]*/,
+            "y" : /*[[${selectedMarker.y}]]*/
+        }, false);
+    /*[/]*/
+
+    drawSelectedMarker({
+        "x" : /*[[${centerMarker.x}]]*/,
+        "y" : /*[[${centerMarker.y}]]*/,
+        "imageSrc" : 'https://img.icons8.com/fluency/344/marker-storm.png',
+        "imageSize" : 40,
+        "zIndex" : 1
+    }, true);
+
+    drawSelectedMarker({
+        "x" : /*[[${baseHotPlace.centerX}]]*/,
+        "y" : /*[[${baseHotPlace.centerY}]]*/,
+        "imageSrc" : 'https://img.icons8.com/bubbles/344/meeting.png',
+        "imageSize" : 100,
+        "zIndex" : -1
+    }, true);
+
+    // 지도 좌측상단에 지도 중심좌표에 대한 주소정보를 표출하는 함수입니다
+    function displayCenterInfo(result, status) {
+        console.log(result)
+
+        var infoDiv = document.getElementById('centerAddr');
+
+         for(var i = 0; i < result.length; i++) {
+            // 행정동의 region_type 값은 'H' 이므로
+            if (result[i].region_type === 'H') {
+                infoDiv.innerHTML = result[i].address_name;
+                break;
+            }
         }
     }
+// 주소-좌표 변환 객체를 생성합니다
+var geocoder = new kakao.maps.services.Geocoder();
+    geocoder.coord2RegionCode(/*[[${centerMarker.x}]]*/, /*[[${centerMarker.y}]]*/, displayCenterInfo);
 
     // Drawing Manager에서 가져온 데이터 중 다각형을 아래 지도에 표시하는 함수입니다
     function drawPolygon(polygons) {
@@ -345,8 +380,9 @@ function displayPlaces(places) {
     // 검색된 장소 위치를 기준으로 지도 범위를 재설정합니다
     drawingMap.setBounds(bounds);
 }
+
     </script>
-        <!-- footer -->
-        <div th:replace="fragment/footer :: base"></div>
-    </body>
+<!-- footer -->
+<div th:replace="fragment/footer :: base"></div>
+</body>
 </html>

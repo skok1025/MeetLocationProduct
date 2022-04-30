@@ -1,81 +1,59 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <!-- Header -->
-        <div th:replace="fragment/header :: base"></div>
-    </head>
-    <body>
-        <div class="d-flex" id="wrapper">
-            <!-- Page content wrapper-->
-            <div id="page-content-wrapper" class="content">
-                <!-- Top navigation-->
-                <div th:replace="fragment/top_navbar :: base"></div>
-                <div th:replace="~{fragment/page_explain :: copyParam ('핫플레이스 등록', '해당 페이지는 약속위치가 될 핫플레이스를 등록하는 페이지입니다. 지도에 드래그를 하여 원영역으로 핫플레이스를 등록해주세요.')}"></div>
-                <div class="container-fluid">
-                    <div class="map_wrap">
-                        <div id="drawingMap"></div>
-                        <p class="modes">
-                            <button class="btn btn-primary" onclick="selectOverlay('CIRCLE')">영역 표시하기</button>
-                            <label class="test_obj">
-                                <input type="radio" id="red-color" name="color" value="apple" onclick="setColor('#ff0000')">
-                                <span>빨간원</span>
-                            </label>
+<head>
+    <!-- Header -->
+    <div th:replace="fragment/header :: base"></div>
+</head>
+<body>
+<div class="d-flex" id="wrapper">
+    <!-- Page content wrapper-->
+    <div id="page-content-wrapper" class="content">
+        <!-- Top navigation-->
+        <div th:replace="fragment/top_navbar :: base"></div>
+        <div th:replace="~{fragment/page_explain :: copyParam ('찬구의 위치 등록', '해당 페이지는 친구의 위치를 지도 상에서 마커로 표시하는 페이지입니다.')}"></div>
+        <div class="container-fluid">
+            <div class="map_wrap">
+                <div id="drawingMap"></div>
+                <p class="modes">
+                    <button class="btn btn-primary" onclick="selectOverlay('MARKER')">위치 표시하기</button>
+                </p>
 
-                            <label class="test_obj">
-                                <input type="radio" id="blue-color" name="color" value="banana" onclick="setColor('#0000ff')">
-                                <span>파란원</span>
-                            </label>
-
-                            <label class="test_obj">
-                                <input type="radio" id="yellow-color" name="color" value="lemon" onclick="setColor('#f7e600')">
-                                <span>노란원</span>
-                            </label>
-                        </p>
-
-                        <div id="menu_wrap" class="bg_white">
-                            <div class="option">
-                                <div>
-                                    <form onsubmit="searchPlaces(); return false;">
-                                        <input type="text" id="keyword" size="15" class="form-control" placeholder="지역명을 입력하세요.">
-                                        <button class="btn btn-sm btn-warning" type="submit">이동하기</button>
-                                    </form>
-                                </div>
-                            </div>
+                <div id="menu_wrap" class="bg_white">
+                    <div class="option">
+                        <div>
+                            <form onsubmit="searchPlaces(); return false;">
+                                <input type="text" id="keyword" size="15" class="form-control" placeholder="지역명을 입력하세요.">
+                                <button class="btn btn-sm btn-warning" type="submit">이동하기</button>
+                            </form>
                         </div>
-                    </div>
-                    <hr>
-                    <div class="explain">
-                        <h5>STEP 1) 지도에 핫플레이스를 등록해주세요.</h5>
-                        <p>지명을 검색한 후에, 원하는 위치에 지도를 드래그하여 핫플레이스 영역을 등록해주세요.</p>
-
-                        <h5>STEP 2) 핫플레이스의 이름을 등록해주세요.</h5>
-                        <form id="hotplaceSaveForm" action="/meet/admin/hotplace" th:object="${hotplace}" method="post">
-                            <div class="form-group input-group-sm">
-                                <label for="name">핫플레이스 명: </label>
-                                <input th:errorclass="field-error" id="name" name="name" class="form-control d-inline w-25" type="text"/>
-                                <input th:field="*{centerX}" type="hidden">
-                                <input th:field="*{centerY}" type="hidden">
-                                <input th:field="*{ePointX}" type="hidden">
-                                <input th:field="*{ePointY}" type="hidden">
-                                <input th:field="*{sPointX}" type="hidden">
-                                <input th:field="*{sPointY}" type="hidden">
-                                <input th:field="*{radius}"  type="hidden">
-                                <input th:field="*{color}"   type="hidden">
-                                <button class="btn btn-primary btn-lg" type="button" onclick="saveDataFromDrawingMap()">등록</button>
-                                <span class="field-error" th:errors="*{name}">
-                                    핫플레이스명 오류
-                                </span>
-                            </div>
-                        </form>
                     </div>
                 </div>
             </div>
-        </div>
+            <hr>
+            <div class="explain">
+                <h5>STEP 1) 친구가 있는 지역으로 이동해주세요.</h5>
+                <p>지도 왼쪽 하단에서 지명을 검색한 후에, 원하는 위치에 지도를 이동시켜주세요.</p>
 
-        <!-- body asset -->
-        <div th:replace="fragment/body_asset :: base"></div>
-        <script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=f3831b2266d6261515391c00c51ac628&libraries=drawing,services"></script>
-        <script th:inline="javascript">
+                <h5>STEP 2) 친구의 위치를 지도상에 찍어주세요.</h5>
+                <p>지도 왼쪽 상단에서 "위치 표시하기" 를 클릭한 후, 친구의 위치를 마커로 표시해주세요.</p>
+
+                <h5>STEP 3) 아래 버튼을 클릭하여 적절한 미팅위치를 찾아주세요.</h5>
+
+                <form id="resultForm" action="/meet/result" method="post">
+                    <div class="form-group input-group-sm">
+                        <button class="btn btn-primary btn-lg" type="button" onclick="saveDataFromDrawingMap()">적절한 미팅위치 찾기</button>
+                        <input id="marker_result" hidden>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- body asset -->
+<div th:replace="fragment/body_asset :: base"></div>
+<script type="text/javascript" src="//dapi.kakao.com/v2/maps/sdk.js?appkey=f3831b2266d6261515391c00c51ac628&libraries=drawing,services"></script>
+<script th:inline="javascript">
     var color = "#39f";
 
     function setColor(setColor) {
@@ -143,18 +121,20 @@
         // Drawing Manager에서 그려진 데이터 정보를 가져옵니다
         var data = manager.getData();
 
-        console.log(data[kakao.maps.drawing.OverlayType.CIRCLE][0]);
+        for (let idx in data[kakao.maps.drawing.OverlayType.MARKER]) {
+            var inputX = document.createElement('input');
+            inputX.name = "markerList[" + idx + "].x";
+            inputX.value = data[kakao.maps.drawing.OverlayType.MARKER][idx]['x'];
+            inputX.hidden = true;
+            $('#resultForm').append(inputX);
 
-        $("#centerX").val(data[kakao.maps.drawing.OverlayType.CIRCLE][0]['center']['x']);
-        $("#centerY").val(data[kakao.maps.drawing.OverlayType.CIRCLE][0]['center']['y']);
-        $("#ePointX").val(data[kakao.maps.drawing.OverlayType.CIRCLE][0]['ePoint']['x']);
-        $("#ePointY").val(data[kakao.maps.drawing.OverlayType.CIRCLE][0]['ePoint']['y']);
-        $("#sPointX").val(data[kakao.maps.drawing.OverlayType.CIRCLE][0]['sPoint']['x']);
-        $("#sPointY").val(data[kakao.maps.drawing.OverlayType.CIRCLE][0]['sPoint']['y']);
-        $("#radius").val(data[kakao.maps.drawing.OverlayType.CIRCLE][0]['radius']);
-        $("#color").val(data[kakao.maps.drawing.OverlayType.CIRCLE][0]['options']['fillColor']);
-
-        $("#hotplaceSaveForm").submit();
+            var inputY = document.createElement('input');
+            inputY.name = "markerList[" + idx + "].y";
+            inputY.value = data[kakao.maps.drawing.OverlayType.MARKER][idx]['y'];
+            inputY.hidden = true;
+            $('#resultForm').append(inputY);
+        }
+        $('#resultForm').submit();
     }
 
     // 아래 지도에 그려진 도형이 있다면 모두 지웁니다
@@ -357,7 +337,7 @@ function displayPlaces(places) {
     drawingMap.setBounds(bounds);
 }
     </script>
-        <!-- footer -->
-        <div th:replace="fragment/footer :: base"></div>
-    </body>
+<!-- footer -->
+<div th:replace="fragment/footer :: base"></div>
+</body>
 </html>
